@@ -16,3 +16,4 @@ Collate:
   diabetes-package.R
   explore.R
   read.R
+RoxygenNote: 6.0.1
