@@ -1,4 +1,4 @@
-Package: diabetes.3
+Package: diabetes
 Type: Package
 Title: Analyze Diabetes Patients
 Version: 1.0.0
@@ -13,6 +13,6 @@ Description: The description. It needs to contain at least two sentences.
 License: LGPL-3
 LazyLoad: yes
 Collate:
-  diabetes.3-package.R
+  diabetes-package.R
   explore.R
   read.R

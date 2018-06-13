@@ -1,5 +1,5 @@
 FROM zatonovo/r-base
 
-COPY . /app/diabetes.3
-WORKDIR /app/diabetes.3
+COPY . /app/diabetes
+WORKDIR /app/diabetes
 RUN crant -SCi
