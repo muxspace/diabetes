@@ -1,2 +1,2 @@
 library(testit)
-test_pkg('diabetes.3')
+test_pkg('diabetes')
