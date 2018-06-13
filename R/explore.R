@@ -3,6 +3,7 @@
 
 #' Show the number of events per patient
 #'
+#' @param df Diabetes data frame produced by \link{read_diabetes}
 #' @examples
 #' \dontrun{
 #' df <- read_diabetes()
@@ -20,8 +21,13 @@ get_event_table <- function(df) {
 # 60: Pre-lunch blood glucose measurement
 # 62: Pre-supper blood glucose measurement
 
-# Distribution of duration of study participation
-# hist(get_patient_duration(df))
+#' Distribution of duration of study participation
+#'
+#' @param df Diabetes data frame produced by \link{read_diabetes}
+#' @examples
+#' \dontrun{
+#' hist(get_patient_duration(df))
+#' }
 get_patient_duration <- function(df) {
   tapply(df$date, df$id, function(date) max(date) - min(date))
 }
@@ -31,14 +37,26 @@ get_patient_duration <- function(df) {
 
 #' Filter out unused events
 #'
+#' @param df Diabetes data frame produced by \link{read_diabetes}
+#' @examples
+#' \dontrun{
 #' df <- filter_events(df)
+#' }
 filter_events <- function(df) {
   keep <- c(33,34,58,60,62)
   df[df$feature %in% keep,]
 }
 
 
+#' Get the times associated with events for a given feature
+#'
+#' @param df Diabetes data frame produced by \link{read_diabetes}
+#' @param feature The feature to get times for
+#' @param id Limit to a specific patient
+#' @examples
+#' \dontrun{
 #' table(get_event_times(df, 58))
+#' }
 get_event_times <- function(df, feature, id=NULL) {
   if (is.null(id))
     df$time[df$feature==feature]
@@ -51,5 +69,8 @@ get_event_times <- function(df, feature, id=NULL) {
 # be converted to a POSIX datetime.
 
 # Section 2.4
+#' Normalize times to a standard set
+#'
+#' @param df Diabetes data frame produced by \link{read_diabetes}
 normalize_times <- function(df) {
 }
