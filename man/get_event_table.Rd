@@ -6,6 +6,9 @@
 \usage{
 get_event_table(df)
 }
+\arguments{
+\item{df}{Diabetes data frame produced by \link{read_diabetes}}
+}
 \description{
 Show the number of events per patient
 }
