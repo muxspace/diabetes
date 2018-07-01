@@ -16,4 +16,6 @@ Collate:
   diabetes-package.R
   explore.R
   read.R
+  util.R
+  regression-model.R
 RoxygenNote: 6.0.1

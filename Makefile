@@ -23,6 +23,12 @@ stop:
 bash:
 	docker exec -it ${CONTAINER_ID} bash
 
-jupyter: all
+notebook: all
 	@mkdir -p notebooks
 	docker run -it -p 8888:8888 ${MOUNT_HOSTDIR} -w /app/${PACKAGE}/notebooks ${REPOSITORY} jupyter notebook --allow-root
+
+data:
+	mkdir -p private
+	curl -O https://archive.ics.uci.edu/ml/machine-learning-databases/diabetes/diabetes-data.tar.Z
+	tar zxf diabetes-data.tar.Z
+	mv Diabetes-Data private/diabetes

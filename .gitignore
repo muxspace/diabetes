@@ -6,6 +6,8 @@ private
 # Example code in package build process
 *-Ex.R
 
+notebooks/.ipynb_checkpoints
+
 # Other
 *.swp
 *~
