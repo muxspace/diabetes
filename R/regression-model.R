@@ -1,10 +1,36 @@
 require(randomForest)
 
+
+#' Example 3.6 (Section 3.3.1, Automated pipelines)
+#' @return A fit model
+train_glucose_pipeline <- function(model.out='private/glucose.RData') {
+  df <- transform_diabetes(read_diabetes())
+  glucose <- construct_glucose_features(df)
+  pair <- split_glucose(glucose)
+  model <- fit_glucose(pair$train)
+  save(model, file=model.out)
+  list(model=model, train=pair$train, test=pair$test, raw=df)
+}
+
+#' Example 3.7 (Section 3.3.1, Automated pipelines)
+#' @return The prediction
+predict_glucose_pipeline <- function(data, model, pred.out) {
+  df <- transform_diabetes(data)
+  glucose <- construct_glucose_features(df)
+  pred <- predict_glucose(glucose, model)
+
+  pred.1 <- read.csv(pred.out, stringsAsFactors=FALSE)
+  write.csv(rbind(pred.1,pred), file=pred.out, row.names=FALSE)
+  pred
+}
+
+
 #' Construct glucose features
 #'
 #' Use vectorization to collect deltas
 #'
-#' Example 3.3 (Section 3.2, Model design)
+#' Example 3.6 (Section 3.3.2, Error handling)
+#' Route error messages to a file
 construct_glucose_features <- function(df) {
   glucose <- c(58,60,62)
   fn <- function(panel) {
@@ -34,8 +60,7 @@ construct_glucose_features <- function(df) {
 #'
 #' Use vectorization to collect deltas
 #'
-#' Example 3.6 (Section 3.3.2, Error handling)
-#' Route error messages to a file
+#' Example 3.3 (Section 3.2, Model design)
 construct_glucose_features <- function(df) {
   glucose <- c(58,60,62)
   fn <- function(panel) {
@@ -75,6 +100,7 @@ construct_glucose_features <- function(df) {
 #' 
 #' Verify in a test with sapply(pair, nrow)
 #'
+#' Example 3.3 (Section 3.2, Model design)
 split_glucose <- function(df, test.ratio=.2, seed=NULL) {
   if (!is.null(seed)) set.seed(seed)
   is.test <- sample(c(TRUE,FALSE), nrow(df),
@@ -86,6 +112,7 @@ split_glucose <- function(df, test.ratio=.2, seed=NULL) {
 #'
 #' Explain glucose level based on previous glucose measurements
 #'
+#' Example 3.3 (Section 3.2, Model design)
 #' @example
 #' \dontrun{
 #' df <- transform_diabetes(read_diabetes())
@@ -103,6 +130,7 @@ fit_glucose <- function(df) {
 #' Generally useful to provide consistent behavior for one or many entries.
 #' This is easy to do with vectorization.
 #'
+#' Example 3.3 (Section 3.2, Model design)
 #' @example
 #' \dontrun{
 #' df <- transform_diabetes(read_diabetes())
@@ -117,6 +145,7 @@ predict_glucose <- function(x, model) {
 
 
 
+#' Example 3.3 (Section 3.2, Model design)
 #' @example
 #' \dontrun{
 #' pred <- predict_glucose(pair$test, model)
@@ -130,6 +159,7 @@ error_glucose <- function(pred, real) {
 }
 
 
+#' Example 3.8 (Section 3.4, Reporting and visualization)
 error_glucose <- function(pred, real) {
   pct.error <- (pred - real) / real
   rmse <- sqrt(sum((pred - real)^2) / length(real))
@@ -152,3 +182,59 @@ plot_glucose_error <- function(err) {
   hist(err$pct.error, breaks='scott', main='Glucose prediction error',
     xlab='Percent error')
 }
+
+
+
+
+
+#' Construct glucose features
+#'
+#' Fix the issues associated with time dependence
+#'
+#' Example 3.4 (Section 3.2, Model design)
+construct_glucose_features <- function(df) {
+  glucose <- c(58,60,62)
+  fn <- function(panel) {
+    panel <- panel[order(panel$ts),]
+    features <- with(panel[panel$feature %in% glucose,], {
+      flog.info("Work on patient %s", panel$id[1])
+      glucose <- value[-c(1,2)]
+      t1.time <- diff(ts)[-1]
+      t1.val <- value[-c(1,length(value))]
+      t2.time <- diff(ts, 2)
+      t2.val <- value[-(length(value) - (1:2))]
+      t2.diff <- t1.val - t2.val
+      list(glucose=glucose,
+        t1.time=t1.time, t1.val=t1.val,
+        t2.time=t2.time, t2.val=t2.val, t2.diff=t2.diff)
+    })
+
+    if (any(sapply(features,length) == 0)) {
+      flog.warn("Skipping patient %s with no glucose measurements",panel$id[1])
+      return(NULL)
+    }
+    features$id <- panel$id[1]
+    as.data.frame(features)
+  }
+  do.call(rbind, by(df, df$id, fn))
+}
+
+
+#' Fit glucose measurement
+#'
+#' Adjust model to use new featurs
+#'
+#' Example 3.4 (Section 3.2, Model design)
+#' @example
+#' \dontrun{
+#' df <- transform_diabetes(read_diabetes())
+#' glucose <- construct_glucose_features(df)
+#' pair <- split_glucose(glucose)
+#' model <- fit_glucose(pair$train)
+#' }
+fit_glucose <- function(df) {
+  cols <- setdiff(colnames(df), c("id"))
+  randomForest(glucose ~ ., df[,cols])
+}
+
+

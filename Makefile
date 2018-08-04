@@ -2,6 +2,7 @@ PACKAGE = $(shell pwd | xargs basename)
 REPOSITORY = $(PACKAGE)
 VERSION ?= 1.0.0
 IMAGE ?= $(REPOSITORY):$(VERSION)
+PORT ?= 8004
 
 HOST_DIR = $(shell pwd)
 MOUNT_HOSTDIR = -v ${HOST_DIR}:/app/${PACKAGE}
@@ -15,7 +16,10 @@ all:
 
 # Open http://localhost:8004/ocpu/library/${PACKAGE}
 run: all
-	docker run -d -p 8004:8004 ${MOUNT_HOSTDIR} ${REPOSITORY}
+	docker run -d -p ${PORT}:8004 ${MOUNT_HOSTDIR} ${REPOSITORY}
+
+run-isolated: all
+	docker run -d -p ${PORT}:8004 ${REPOSITORY}
 
 stop:
 	docker stop ${CONTAINER_ID}

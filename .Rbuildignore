@@ -1,3 +1,5 @@
+Dockerfile
+Makefile
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^rename$
@@ -10,4 +12,5 @@
 .swp$
 ^private$
 ^notebooks$
-Makefile
+^reports$
+^shiny$

@@ -1,0 +1,41 @@
+---
+title: "Diabetes Glucose Prediction"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir='..')
+library(futile.logger)
+library(knitr)
+library(devtools)
+flog.info("Simulate load diabetes package")
+load_all()
+```
+
+```{r, include=FALSE}
+out <- train_glucose_pipeline()
+df <- out$raw
+
+flog.info("Make prediction")
+pred <- predict_glucose(out$test, out$model)
+```
+
+# Overview
+We predict glucose levels of diabetics.
+There are 68 patients.
+
+```{r echo=FALSE}
+glucose <- c(58,60,62)
+with(df[df$feature %in% glucose,],
+  t(sapply(unique(id),
+    function(i) sapply(glucose,
+      function(f) mean(value[id==i & feature==f]))))
+)
+```
+
+# Results
+
+```{r echo=FALSE}
+err <- error_glucose(pred, out$test$glucose)
+plot_glucose_error(err)
+```
