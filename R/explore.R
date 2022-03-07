@@ -2,6 +2,7 @@
 ################################## CHAPTER 2 #################################
 # Section 2.2.2
 
+
 #' Show the number of events per patient
 #'
 #' @examples
@@ -106,13 +107,13 @@ plot_duration_vs_events <- function(df) {
 
 # Add in a filter for specific feature
 plot_duration_vs_events <- function(df, feature=NULL) {
-  if (!is.null(feature)) df <- df[df$feature==feature,]
+  #*#if (!is.null(feature)) df <- df[df$feature==feature,]#*#
   de <- tapply(df$date, df$id,
     function(date) c(max(date) - min(date), length(date)) )
   de <- do.call(rbind, as.list(de))
   plot(de, xlab='duration (days)', ylab='events',
     main="Number of events vs. duration of participation")
-  text(de, labels=unique(df$id), pos=1)
+  #*#text(de, labels=unique(df$id), pos=1)#*#
 }
 
 
@@ -123,7 +124,7 @@ plot_glucose_and_insulin <- function(df, id, inf=NULL, sup=NULL) {
   insulin <- c(33,34)
   with(df[df$id==id & df$feature %in% glucose & between(df$date,inf,sup),], {
     plot(ts, value, type='l', col='gray', main='Glucose (mg)')
-    points(ts, value, col=feature)
+    points(ts, value, pch=(feature-min(feature))/2)
   })
   with(df[df$id==id & df$feature %in% insulin & between(df$date,inf,sup),], {
     plot(ts, value, type='l', col='gray', main='Insulin (units)')

@@ -4,11 +4,11 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir='..')
 library(futile.logger)
 library(knitr)
 library(devtools)
-flog.info("Simulate load diabetes package")
+knitr::opts_knit$set(root.dir='..')
+flog.appender(appender.file('regression.log'))
 load_all()
 ```
 
@@ -25,17 +25,21 @@ We predict glucose levels of diabetics.
 There are 68 patients.
 
 ```{r echo=FALSE}
+flog.info("Summarize each patient")
 glucose <- c(58,60,62)
-with(df[df$feature %in% glucose,],
+tab <- as.data.frame(with(df[df$feature %in% glucose,],
   t(sapply(unique(id),
     function(i) sapply(glucose,
       function(f) mean(value[id==i & feature==f]))))
-)
+))
+colnames(tab) <- c('Pre-breakfast','Pre-lunch','Pre-dinner')
+kable(tab, caption='Average glucose measurements per patient')
 ```
 
 # Results
 
 ```{r echo=FALSE}
+flog.info("Calculate errors")
 err <- error_glucose(pred, out$test$glucose)
 plot_glucose_error(err)
 ```

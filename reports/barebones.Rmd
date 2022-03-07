@@ -1,0 +1,45 @@
+---
+title: "Barebones example"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+```
+
+# Rendering options
+## Include code and result
+```{r}
+x <- rnorm(100)
+mean(x)
+hist(x)
+```
+
+## Include just the result
+```{r, echo=FALSE}
+x <- rnorm(100)
+mean(x)
+hist(x)
+```
+
+## Execute but suppress code and result
+```{r, include=FALSE}
+x <- rnorm(100)
+mean(x)
+hist(x)
+```
+
+# Tables
+## Print a raw data frame
+This chunk shows how a data frame is printed by default.
+```{r}
+TF <- c(TRUE,FALSE)
+df <- data.frame(a=1:6, b=rnorm(6), c=sample(TF,6,replace=TRUE))
+df
+```
+
+## kable function in knitr
+Alternatively, the `kable` function prints a nicer looking table.
+```{r}
+kable(df)
+```

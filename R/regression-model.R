@@ -1,16 +1,19 @@
-require(randomForest)
 
 
 #' Example 3.6 (Section 3.3.1, Automated pipelines)
 #' @return A fit model
-train_glucose_pipeline <- function(model.out='private/glucose.RData') {
-  df <- transform_diabetes(read_diabetes())
+train_glucose_pipeline <- function(model.out='private/glucose.RData', ...) {
+  df <- transform_diabetes(read_diabetes(...))
   glucose <- construct_glucose_features(df)
   pair <- split_glucose(glucose)
   model <- fit_glucose(pair$train)
   save(model, file=model.out)
   list(model=model, train=pair$train, test=pair$test, raw=df)
 }
+
+
+
+
 
 #' Example 3.7 (Section 3.3.1, Automated pipelines)
 #' @return The prediction
@@ -237,4 +240,43 @@ fit_glucose <- function(df) {
   randomForest(glucose ~ ., df[,cols])
 }
 
+
+
+# Example 3.9
+predict_glucose_pipeline <- function(data, model, pred.out) {
+  flog.appender(appender.tee('errors.log'))
+  on.exit(flog.appender(appender.console()))
+
+  df <- transform_diabetes(data)
+  glucose <- construct_glucose_features(df)
+  
+  glucose$group <- 1:nrow(glucose) %% 10
+  pred <- do.call(rbind, lapply(1:10, function(g) {
+    flog.info("Predicting on group %s",g)
+    o <- NULL
+    ftry(o <- predict_glucose(glucose[glucose$group==g,], model),
+      error=function(e) return())
+    o
+  }))
+
+  pred.1 <- read.csv(pred.out, stringsAsFactors=FALSE)
+  write.csv(rbind(pred.1,pred), file=pred.out, row.names=FALSE)
+  pred
+}
+
+
+
+
+train_glucose_pipeline <- function(model.out='private/glucose.RData', ...) {
+  flog.info("Read diabetes training set")
+  df <- transform_diabetes(read_diabetes(...))
+  flog.info("Construct features")
+  glucose <- construct_glucose_features(df)
+  pair <- split_glucose(glucose)
+  flog.info("Fit model")
+  model <- fit_glucose(pair$train)
+  flog.info("Save model to %s (currently in %s)", model.out, getwd())
+  save(model, file=model.out)
+  list(model=model, train=pair$train, test=pair$test, raw=df)
+}
 

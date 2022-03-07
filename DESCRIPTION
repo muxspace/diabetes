@@ -6,7 +6,8 @@ Date: 2018-06-08
 Author: Author Name <author@name.com>
 Maintainer: Author Name <author@name.com>
 Imports:
-  futile.logger
+  futile.logger,
+  randomForest
 Suggests:
   testit
 Description: The description. It needs to contain at least two sentences.
